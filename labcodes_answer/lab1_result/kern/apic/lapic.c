@@ -9,6 +9,7 @@
 #include <lapic.h>
 #include <stdio.h>
 #include <string.h>
+#include <pmm.h>
 
 volatile uint32_t *lapic;  // Initialized in mp.c
 
@@ -117,7 +118,7 @@ lapicstartap(uint8_t apicid, uint32_t addr)
   // the AP startup code prior to the [universal startup algorithm]."
   outb(CMOS_PORT, 0xF);  // offset 0xF is shutdown code
   outb(CMOS_PORT+1, 0x0A);
-  wrv = (uint16_t*)P2V(0x40<<4 | 0x67);  // Warm reset vector
+  wrv = (uint16_t*)KADDR(0x40<<4 | 0x67);  // Warm reset vector
   wrv[0] = 0;
   wrv[1] = addr >> 4;
 

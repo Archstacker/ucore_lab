@@ -36,3 +36,11 @@ struct rtcdate {
 	uint32_t month;
 	uint32_t year;
 };
+
+void            cmostime(struct rtcdate *r);
+int             cpunum(void);
+extern volatile uint32_t*    lapic;
+void            lapiceoi(void);
+void            lapicinit(void);
+void            lapicstartap(uint8_t, uint32_t);
+void            microdelay(int);

@@ -89,6 +89,14 @@ ltr(uint16_t sel) {
     asm volatile ("ltr %0" :: "r" (sel));
 }
 
+static inline uint32_t
+readeflags(void)
+{
+  uint32_t eflags;
+  asm volatile("pushfl; popl %0" : "=r" (eflags));
+  return eflags;
+}
+
 static inline int __strcmp(const char *s1, const char *s2) __attribute__((always_inline));
 static inline char *__strcpy(char *dst, const char *src) __attribute__((always_inline));
 static inline void *__memset(void *s, char c, size_t n) __attribute__((always_inline));

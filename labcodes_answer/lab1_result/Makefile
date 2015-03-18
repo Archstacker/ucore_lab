@@ -112,14 +112,18 @@ $(call add_files_cc,$(call listf_cc,$(LIBDIR)),libs,)
 KINCLUDE	+= kern/debug/ \
 			   kern/driver/ \
 			   kern/trap/ \
-			   kern/mm/
+			   kern/mm/ \
+			   kern/process/ \
+			   kern/apic/
 
 KSRCDIR		+= kern/init \
 			   kern/libs \
 			   kern/debug \
 			   kern/driver \
 			   kern/trap \
-			   kern/mm
+			   kern/mm \
+			   kern/process \
+			   kern/apic
 
 KCFLAGS		+= $(addprefix -I,$(KINCLUDE))
 

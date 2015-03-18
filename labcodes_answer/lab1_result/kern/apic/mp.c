@@ -10,6 +10,9 @@
 #include <mmu.h>
 #include <stdio.h>
 #include <string.h>
+#include <pmm.h>
+#include <lapic.h>
+#include <proc.h>
 
 struct cpu cpus[NCPU];
 static struct cpu *bcpu;
@@ -40,7 +43,7 @@ mpsearch1(uint32_t a, int len)
 {
   uint8_t *e, *p, *addr;
 
-  addr = p2v(a);
+  addr = KADDR(a);
   e = addr+len;
   for(p = addr; p < e; p += sizeof(struct mp))
     if(memcmp(p, "_MP_", 4) == 0 && sum(p, sizeof(struct mp)) == 0)
@@ -60,7 +63,7 @@ mpsearch(void)
   uint32_t p;
   struct mp *mp;
 
-  bda = (uint8_t *) P2V(0x400);
+  bda = (uint8_t *) KADDR(0x400);
   if((p = ((bda[0x0F]<<8)| bda[0x0E]) << 4)){
     if((mp = mpsearch1(p, 1024)))
       return mp;
@@ -85,7 +88,7 @@ mpconfig(struct mp **pmp)
 
   if((mp = mpsearch()) == 0 || mp->physaddr == 0)
     return 0;
-  conf = (struct mpconf*) p2v((uint32_t) mp->physaddr);
+  conf = (struct mpconf*) KADDR((uint32_t) mp->physaddr);
   if(memcmp(conf, "PCMP", 4) != 0)
     return 0;
   if(conf->version != 1 && conf->version != 4)
@@ -147,7 +150,6 @@ mpinit(void)
     return;
   }
 
-  cprintf("NCPU:%d\n",ncpu);
   if(mp->imcrp){
     // Bochs doesn't support IMCR, so this doesn't run on Bochs.
     // But it would on real hardware.

@@ -29,6 +29,8 @@
 
 #define T_SYSCALL               0x80 // SYSCALL, ONLY FOR THIS PROJ
 
+#define T_IRQ0          32      // IRQ 0 corresponds to int T_IRQ
+
 /* Hardware IRQ numbers. We receive these as (IRQ_OFFSET + IRQ_xx) */
 #define IRQ_OFFSET                32    // IRQ 0 corresponds to int IRQ_OFFSET
 
