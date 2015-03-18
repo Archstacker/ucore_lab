@@ -54,3 +54,7 @@ struct mp_ioapic {       // I/O APIC table entry
 
 //PAGEBREAK!
 // Blank page.
+
+extern int      ismp;
+int             mp_bcpu(void);
+void            mp_init(void);

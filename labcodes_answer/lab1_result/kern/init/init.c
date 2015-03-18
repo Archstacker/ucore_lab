@@ -10,6 +10,7 @@
 #include <pmm.h>
 #include <kmonitor.h>
 #include <mp.h>
+#include <lapic.h>
 
 void kern_init(void) __attribute__((noreturn));
 void grade_backtrace(void);
@@ -32,6 +33,7 @@ kern_init(void){
     pmm_init();                 // init physical memory management
 
     mp_init();                  // collect info about this machine
+    lapic_init();
 
     pic_init();                 // init interrupt controller
     idt_init();                 // init interrupt descriptor table
