@@ -9,6 +9,7 @@
 #include <console.h>
 #include <kdebug.h>
 #include <string.h>
+#include <lapic.h>
 #define TICK_NUM 100
 
 static void print_ticks() {
@@ -163,6 +164,7 @@ trap_dispatch(struct trapframe *tf) {
         if (ticks % TICK_NUM == 0) {
             print_ticks();
         }
+        lapic_eoi();
         break;
     case IRQ_OFFSET + IRQ_COM1:
         c = cons_getc();

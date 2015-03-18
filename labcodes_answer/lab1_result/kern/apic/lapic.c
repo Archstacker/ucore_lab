@@ -89,7 +89,7 @@ cpu_num(void)
 
 // Acknowledge interrupt.
 void
-lapiceoi(void)
+lapic_eoi(void)
 {
   if(lapic)
     lapic_w(EOI, 0);
