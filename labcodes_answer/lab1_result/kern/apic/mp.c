@@ -2,20 +2,20 @@
 // Search memory for MP description structures.
 // http://developer.intel.com/design/pentium/datashts/24201606.pdf
 
-#include "types.h"
-#include "defs.h"
-#include "param.h"
-#include "memlayout.h"
-#include "mp.h"
-#include "x86.h"
-#include "mmu.h"
-#include "proc.h"
+#include <defs.h>
+#include <param.h>
+#include <memlayout.h>
+#include <mp.h>
+#include <x86.h>
+#include <mmu.h>
+#include <stdio.h>
+#include <string.h>
 
 struct cpu cpus[NCPU];
 static struct cpu *bcpu;
-int ismp;
-int ncpu;
-uchar ioapicid;
+int32_t ismp;
+int32_t ncpu;
+uint8_t ioapicid;
 
 int
 mpbcpu(void)
@@ -23,10 +23,10 @@ mpbcpu(void)
   return bcpu-cpus;
 }
 
-static uchar
-sum(uchar *addr, int len)
+static uint8_t
+sum(uint8_t *addr, int32_t len)
 {
-  int i, sum;
+  int32_t i, sum;
   
   sum = 0;
   for(i=0; i<len; i++)
@@ -36,9 +36,9 @@ sum(uchar *addr, int len)
 
 // Look for an MP structure in the len bytes at addr.
 static struct mp*
-mpsearch1(uint a, int len)
+mpsearch1(uint32_t a, int len)
 {
-  uchar *e, *p, *addr;
+  uint8_t *e, *p, *addr;
 
   addr = p2v(a);
   e = addr+len;
@@ -56,11 +56,11 @@ mpsearch1(uint a, int len)
 static struct mp*
 mpsearch(void)
 {
-  uchar *bda;
-  uint p;
+  uint8_t *bda;
+  uint32_t p;
   struct mp *mp;
 
-  bda = (uchar *) P2V(0x400);
+  bda = (uint8_t *) P2V(0x400);
   if((p = ((bda[0x0F]<<8)| bda[0x0E]) << 4)){
     if((mp = mpsearch1(p, 1024)))
       return mp;
@@ -85,12 +85,12 @@ mpconfig(struct mp **pmp)
 
   if((mp = mpsearch()) == 0 || mp->physaddr == 0)
     return 0;
-  conf = (struct mpconf*) p2v((uint) mp->physaddr);
+  conf = (struct mpconf*) p2v((uint32_t) mp->physaddr);
   if(memcmp(conf, "PCMP", 4) != 0)
     return 0;
   if(conf->version != 1 && conf->version != 4)
     return 0;
-  if(sum((uchar*)conf, conf->length) != 0)
+  if(sum((uint8_t*)conf, conf->length) != 0)
     return 0;
   *pmp = mp;
   return conf;
@@ -99,7 +99,7 @@ mpconfig(struct mp **pmp)
 void
 mpinit(void)
 {
-  uchar *p, *e;
+  uint8_t *p, *e;
   struct mp *mp;
   struct mpconf *conf;
   struct mpproc *proc;
@@ -109,8 +109,8 @@ mpinit(void)
   if((conf = mpconfig(&mp)) == 0)
     return;
   ismp = 1;
-  lapic = (uint*)conf->lapicaddr;
-  for(p=(uchar*)(conf+1), e=(uchar*)conf+conf->length; p<e; ){
+  lapic = (uint32_t*)conf->lapicaddr;
+  for(p=(uint8_t*)(conf+1), e=(uint8_t*)conf+conf->length; p<e; ){
     switch(*p){
     case MPPROC:
       proc = (struct mpproc*)p;
