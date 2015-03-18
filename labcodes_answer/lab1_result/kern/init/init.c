@@ -11,6 +11,7 @@
 #include <kmonitor.h>
 #include <mp.h>
 #include <lapic.h>
+#include <ioapic.h>
 
 void kern_init(void) __attribute__((noreturn));
 void grade_backtrace(void);
@@ -36,6 +37,8 @@ kern_init(void){
     lapic_init();
 
     pic_init();                 // init interrupt controller
+    ioapic_init();              // another interrupt controller
+
     idt_init();                 // init interrupt descriptor table
 
     clock_init();               // init clock interrupt
