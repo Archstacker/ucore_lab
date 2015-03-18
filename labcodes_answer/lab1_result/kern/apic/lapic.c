@@ -14,7 +14,7 @@
 volatile uint32_t *lapic;  // Initialized in mp.c
 
 static void
-lapicw(int index, int value)
+lapic_w(int index, int value)
 {
   lapic[index] = value;
   lapic[ID];  // wait for write to finish, by reading
@@ -22,60 +22,60 @@ lapicw(int index, int value)
 //PAGEBREAK!
 
 void
-lapicinit(void)
+lapic_init(void)
 {
   if(!lapic) 
     return;
 
   // Enable local APIC; set spurious interrupt vector.
-  lapicw(SVR, ENABLE | (T_IRQ0 + IRQ_SPURIOUS));
+  lapic_w(SVR, ENABLE | (T_IRQ0 + IRQ_SPURIOUS));
 
   // The timer repeatedly counts down at bus frequency
   // from lapic[TICR] and then issues an interrupt.  
   // If xv6 cared more about precise timekeeping,
   // TICR would be calibrated using an external time source.
-  lapicw(TDCR, X1);
-  lapicw(TIMER, PERIODIC | (T_IRQ0 + IRQ_TIMER));
-  lapicw(TICR, 10000000); 
+  lapic_w(TDCR, X1);
+  lapic_w(TIMER, PERIODIC | (T_IRQ0 + IRQ_TIMER));
+  lapic_w(TICR, 10000000); 
 
   // Disable logical interrupt lines.
-  lapicw(LINT0, MASKED);
-  lapicw(LINT1, MASKED);
+  lapic_w(LINT0, MASKED);
+  lapic_w(LINT1, MASKED);
 
   // Disable performance counter overflow interrupts
   // on machines that provide that interrupt entry.
   if(((lapic[VER]>>16) & 0xFF) >= 4)
-    lapicw(PCINT, MASKED);
+    lapic_w(PCINT, MASKED);
 
   // Map error interrupt to IRQ_ERROR.
-  lapicw(ERROR, T_IRQ0 + IRQ_ERROR);
+  lapic_w(ERROR, T_IRQ0 + IRQ_ERROR);
 
   // Clear error status register (requires back-to-back writes).
-  lapicw(ESR, 0);
-  lapicw(ESR, 0);
+  lapic_w(ESR, 0);
+  lapic_w(ESR, 0);
 
   // Ack any outstanding interrupts.
-  lapicw(EOI, 0);
+  lapic_w(EOI, 0);
 
   // Send an Init Level De-Assert to synchronise arbitration ID's.
-  lapicw(ICRHI, 0);
-  lapicw(ICRLO, BCAST | INIT | LEVEL);
+  lapic_w(ICRHI, 0);
+  lapic_w(ICRLO, BCAST | INIT | LEVEL);
   while(lapic[ICRLO] & DELIVS)
     ;
 
   // Enable interrupts on the APIC (but not on the processor).
-  lapicw(TPR, 0);
+  lapic_w(TPR, 0);
 }
 
 int
-cpunum(void)
+cpu_num(void)
 {
   // Cannot call cpu when interrupts are enabled:
   // result not guaranteed to last long enough to be used!
   // Would prefer to panic but even printing is chancy here:
   // almost everything, including cprintf and panic, calls cpu,
   // often indirectly through acquire and release.
-  if(readeflags()&FL_IF){
+  if(read_eflags()&FL_IF){
     static int32_t n;
     if(n++ == 0)
       cprintf("cpu called from %x with interrupts enabled\n",
@@ -92,13 +92,13 @@ void
 lapiceoi(void)
 {
   if(lapic)
-    lapicw(EOI, 0);
+    lapic_w(EOI, 0);
 }
 
 // Spin for a given number of microseconds.
 // On real hardware would want to tune this dynamically.
 void
-microdelay(int us)
+micro_delay(int us)
 {
 }
 
@@ -108,7 +108,7 @@ microdelay(int us)
 // Start additional processor running entry code at addr.
 // See Appendix B of MultiProcessor Specification.
 void
-lapicstartap(uint8_t apicid, uint32_t addr)
+lapic_startap(uint8_t apic_id, uint32_t addr)
 {
   int32_t i;
   uint16_t *wrv;
@@ -124,11 +124,11 @@ lapicstartap(uint8_t apicid, uint32_t addr)
 
   // "Universal startup algorithm."
   // Send INIT (level-triggered) interrupt to reset other CPU.
-  lapicw(ICRHI, apicid<<24);
-  lapicw(ICRLO, INIT | LEVEL | ASSERT);
-  microdelay(200);
-  lapicw(ICRLO, INIT | LEVEL);
-  microdelay(100);    // should be 10ms, but too slow in Bochs!
+  lapic_w(ICRHI, apic_id<<24);
+  lapic_w(ICRLO, INIT | LEVEL | ASSERT);
+  micro_delay(200);
+  lapic_w(ICRLO, INIT | LEVEL);
+  micro_delay(100);    // should be 10ms, but too slow in Bochs!
   
   // Send startup IPI (twice!) to enter code.
   // Regular hardware is supposed to only accept a STARTUP
@@ -136,9 +136,9 @@ lapicstartap(uint8_t apicid, uint32_t addr)
   // should be ignored, but it is part of the official Intel algorithm.
   // Bochs complains about the second one.  Too bad for Bochs.
   for(i = 0; i < 2; i++){
-    lapicw(ICRHI, apicid<<24);
-    lapicw(ICRLO, STARTUP | (addr>>12));
-    microdelay(200);
+    lapic_w(ICRHI, apic_id<<24);
+    lapic_w(ICRLO, STARTUP | (addr>>12));
+    micro_delay(200);
   }
 }
 
@@ -156,12 +156,12 @@ lapicstartap(uint8_t apicid, uint32_t addr)
 static uint32_t cmos_read(uint32_t reg)
 {
   outb(CMOS_PORT,  reg);
-  microdelay(200);
+  micro_delay(200);
 
   return inb(CMOS_RETURN);
 }
 
-static void fill_rtcdate(struct rtcdate *r)
+static void fill_rtcdate(struct rtc_date *r)
 {
   r->second = cmos_read(SECS);
   r->minute = cmos_read(MINS);
@@ -172,9 +172,9 @@ static void fill_rtcdate(struct rtcdate *r)
 }
 
 // qemu seems to use 24-hour GWT and the values are BCD encoded
-void cmostime(struct rtcdate *r)
+void cmos_time(struct rtc_date *r)
 {
-  struct rtcdate t1, t2;
+  struct rtc_date t1, t2;
   int32_t sb, bcd;
 
   sb = cmos_read(CMOS_STATB);

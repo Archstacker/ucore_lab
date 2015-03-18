@@ -90,7 +90,7 @@ ltr(uint16_t sel) {
 }
 
 static inline uint32_t
-readeflags(void)
+read_eflags(void)
 {
   uint32_t eflags;
   asm volatile("pushfl; popl %0" : "=r" (eflags));

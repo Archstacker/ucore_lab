@@ -28,7 +28,7 @@
 #define TICR    (0x0380/4)   // Timer Initial Count
 #define TCCR    (0x0390/4)   // Timer Current Count
 #define TDCR    (0x03E0/4)   // Timer Divide Configuration
-struct rtcdate {
+struct rtc_date {
 	uint32_t second;
 	uint32_t minute;
 	uint32_t hour;
@@ -37,10 +37,10 @@ struct rtcdate {
 	uint32_t year;
 };
 
-void            cmostime(struct rtcdate *r);
-int             cpunum(void);
+void            cmos_time(struct rtc_date *r);
+int             cpu_num(void);
 extern volatile uint32_t*    lapic;
-void            lapiceoi(void);
-void            lapicinit(void);
-void            lapicstartap(uint8_t, uint32_t);
-void            microdelay(int);
+void            lapic_eoi(void);
+void            lapic_init(void);
+void            lapic_startap(uint8_t, uint32_t);
+void            micro_delay(int);

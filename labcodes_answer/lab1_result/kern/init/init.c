@@ -31,7 +31,7 @@ kern_init(void){
 
     pmm_init();                 // init physical memory management
 
-    mpinit();                  // collect info about this machine
+    mp_init();                  // collect info about this machine
 
     pic_init();                 // init interrupt controller
     idt_init();                 // init interrupt descriptor table

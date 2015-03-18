@@ -11,7 +11,7 @@ struct mp {             // floating pointer
   uint8_t reserved[3];
 };
 
-struct mpconf {         // configuration table header
+struct mp_conf {         // configuration table header
   uint8_t signature[4];           // "PCMP"
   uint16_t length;                // total table length
   uint8_t version;                // [14]
@@ -26,7 +26,7 @@ struct mpconf {         // configuration table header
   uint8_t reserved;
 };
 
-struct mpproc {         // processor table entry
+struct mp_proc {         // processor table entry
   uint8_t type;                   // entry type (0)
   uint8_t apicid;                 // local APIC id
   uint8_t version;                // local APIC verison
@@ -37,7 +37,7 @@ struct mpproc {         // processor table entry
   uint8_t reserved[8];
 };
 
-struct mpioapic {       // I/O APIC table entry
+struct mp_ioapic {       // I/O APIC table entry
   uint8_t type;                   // entry type (2)
   uint8_t apicno;                 // I/O APIC id
   uint8_t version;                // I/O APIC version
@@ -46,11 +46,11 @@ struct mpioapic {       // I/O APIC table entry
 };
 
 // Table entry types
-#define MPPROC    0x00  // One per processor
-#define MPBUS     0x01  // One per bus
-#define MPIOAPIC  0x02  // One per I/O APIC
-#define MPIOINTR  0x03  // One per bus interrupt source
-#define MPLINTR   0x04  // One per system interrupt source
+#define MP_PROC   0x00  // One per processor
+#define MP_BUS    0x01  // One per bus
+#define MP_IOAPIC 0x02  // One per I/O APIC
+#define MP_IOINTR 0x03  // One per bus interrupt source
+#define MP_LINTR  0x04  // One per system interrupt source
 
 //PAGEBREAK!
 // Blank page.
