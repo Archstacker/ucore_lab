@@ -168,10 +168,12 @@ trap_dispatch(struct trapframe *tf) {
         break;
     case IRQ_OFFSET + IRQ_COM1:
         c = cons_getc();
+        lapic_eoi();
         cprintf("serial [%03d] %c\n", c, c);
         break;
     case IRQ_OFFSET + IRQ_KBD:
         c = cons_getc();
+        lapic_eoi();
         cprintf("kbd [%03d] %c\n", c, c);
         break;
     //LAB1 CHALLENGE 1 : YOUR CODE you should modify below codes.

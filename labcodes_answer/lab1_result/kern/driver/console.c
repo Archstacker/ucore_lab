@@ -407,6 +407,7 @@ kbd_init(void) {
     // drain the kbd buffer
     kbd_intr();
     pic_enable(IRQ_KBD);
+    ioapic_enable(IRQ_KBD, 0);
 }
 
 /* cons_init - initializes the console devices */

@@ -22,11 +22,6 @@ kern_init(void){
     extern char edata[], end[];
     memset(edata, 0, end - edata);
 
-    cons_init();                // init the console
-
-    const char *message = "(THU.CST) os is loading ...";
-    cprintf("%s\n\n", message);
-
     print_kerninfo();
 
     grade_backtrace();
@@ -38,6 +33,11 @@ kern_init(void){
 
     pic_init();                 // init interrupt controller
     ioapic_init();              // another interrupt controller
+
+    cons_init();                // init the console
+
+    const char *message = "(THU.CST) os is loading ...";
+    cprintf("%s\n\n", message);
 
     idt_init();                 // init interrupt descriptor table
 

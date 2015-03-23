@@ -10,9 +10,9 @@ struct spin_lock {
 };
 
 void            acquire(struct spin_lock*);
-void            getcallerpcs(void*, uint32_t*);
+void            get_caller_pcs(void*, uint32_t*);
 int             holding(struct spin_lock*);
-void            initlock(struct spin_lock*, uint8_t*);
+void            init_lock(struct spin_lock*, char*);
 void            release(struct spin_lock*);
-void            pushcli(void);
-void            popcli(void);
+void            push_cli(void);
+void            pop_cli(void);
