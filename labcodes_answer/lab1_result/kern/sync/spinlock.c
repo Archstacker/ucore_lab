@@ -1,16 +1,16 @@
 // Mutual exclusion spin locks.
 
-#include "types.h"
-#include "defs.h"
-#include "param.h"
-#include "x86.h"
-#include "memlayout.h"
-#include "mmu.h"
-#include "proc.h"
-#include "spinlock.h"
+#include <defs.h>
+#include <param.h>
+#include <x86.h>
+#include <memlayout.h>
+#include <mmu.h>
+#include <proc.h>
+#include <assert.h>
+#include <spinlock.h>
 
 void
-initlock(struct spinlock *lk, char *name)
+init_lock(struct spin_lock *lk, char *name)
 {
   lk->name = name;
   lk->locked = 0;
@@ -22,9 +22,9 @@ initlock(struct spinlock *lk, char *name)
 // Holding a lock for a long time may cause
 // other CPUs to waste time spinning to acquire it.
 void
-acquire(struct spinlock *lk)
+acquire(struct spin_lock *lk)
 {
-  pushcli(); // disable interrupts to avoid deadlock.
+  push_cli(); // disable interrupts to avoid deadlock.
   if(holding(lk))
     panic("acquire");
 
@@ -36,12 +36,12 @@ acquire(struct spinlock *lk)
 
   // Record info about lock acquisition for debugging.
   lk->cpu = cpu;
-  getcallerpcs(&lk, lk->pcs);
+  get_caller_pcs(&lk, lk->pcs);
 }
 
 // Release the lock.
 void
-release(struct spinlock *lk)
+release(struct spin_lock *lk)
 {
   if(!holding(lk))
     panic("release");
@@ -60,30 +60,30 @@ release(struct spinlock *lk)
   // the above assignments (and after the critical section).
   xchg(&lk->locked, 0);
 
-  popcli();
+  pop_cli();
 }
 
 // Record the current call stack in pcs[] by following the %ebp chain.
 void
-getcallerpcs(void *v, uint pcs[])
+get_caller_pcs(void *v, uint32_t pcs[])
 {
-  uint *ebp;
-  int i;
+  uint32_t *ebp;
+  int32_t i;
   
-  ebp = (uint*)v - 2;
+  ebp = (uint32_t*)v - 2;
   for(i = 0; i < 10; i++){
-    if(ebp == 0 || ebp < (uint*)KERNBASE || ebp == (uint*)0xffffffff)
+    if(ebp == 0 || ebp < (uint32_t*)KERNBASE || ebp == (uint32_t*)0xffffffff)
       break;
     pcs[i] = ebp[1];     // saved %eip
-    ebp = (uint*)ebp[0]; // saved %ebp
+    ebp = (uint32_t*)ebp[0]; // saved %ebp
   }
   for(; i < 10; i++)
     pcs[i] = 0;
 }
 
 // Check whether this cpu is holding the lock.
-int
-holding(struct spinlock *lock)
+int32_t
+holding(struct spin_lock *lock)
 {
   return lock->locked && lock->cpu == cpu;
 }
@@ -94,20 +94,20 @@ holding(struct spinlock *lock)
 // are off, then pushcli, popcli leaves them off.
 
 void
-pushcli(void)
+push_cli(void)
 {
   int eflags;
   
-  eflags = readeflags();
+  eflags = read_eflags();
   cli();
   if(cpu->ncli++ == 0)
     cpu->intena = eflags & FL_IF;
 }
 
 void
-popcli(void)
+pop_cli(void)
 {
-  if(readeflags()&FL_IF)
+  if(read_eflags()&FL_IF)
     panic("popcli - interruptible");
   if(--cpu->ncli < 0)
     panic("popcli");

@@ -25,5 +25,6 @@
 #define USER_CS        ((GD_UTEXT) | DPL_USER)
 #define USER_DS        ((GD_UDATA) | DPL_USER)
 
+#define KERNBASE 0
 #endif /* !__KERN_MM_MEMLAYOUT_H__ */
 
