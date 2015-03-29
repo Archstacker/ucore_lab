@@ -52,7 +52,7 @@ idt_init(void) {
     {
         SETGATE(idt[i], 0, GD_KTEXT, __vectors[i], DPL_KERNEL);
     }
-    SETGATE(idt[T_SWITCH_TOK], 1, GD_KTEXT, __vectors[T_SWITCH_TOK], DPL_KERNEL);
+    SETGATE(idt[T_SWITCH_TOK], 1, GD_KTEXT, __vectors[T_SWITCH_TOK], DPL_USER);
     lidt(&idt_pd);
 }
 
@@ -173,12 +173,15 @@ trap_dispatch(struct trapframe *tf) {
         if (tf->tf_cs != USER_DS) {
             tf->tf_cs = USER_CS;
             tf->tf_ds = tf->tf_es = tf->tf_ss = USER_DS;
-            tf->tf_esp = (uint32_t)tf + sizeof(struct trapframe) - 8;
             tf->tf_eflags |= FL_IOPL_MASK;
         }
         break;
     case T_SWITCH_TOK:
-        panic("T_SWITCH_** ??\n");
+        if (tf->tf_cs != KERNEL_CS) {
+            tf->tf_cs = KERNEL_CS;
+            tf->tf_ds = tf->tf_es = KERNEL_DS;
+            tf->tf_eflags &= ~FL_IOPL_MASK;
+        }
         break;
     case IRQ_OFFSET + IRQ_IDE1:
     case IRQ_OFFSET + IRQ_IDE2:
