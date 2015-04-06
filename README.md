@@ -21,7 +21,7 @@ uCore OS Labs是用于清华大学计算机系本科操作系统课程的教学�
   - **筑基内功**--请提前学习计算机原理、C语言、数据结构课程
   - **工欲善其事，必先利其器**--请掌握七种武器  [实验常用工具列表](https://github.com/objectkuan/ucore_docs/blob/master/lab0/lab0_ref_ucore-tools.md)
   - **学至于行之而止矣**--请在实验中体会操作系统的精髓
-  - **打通任督二脉**--lab1和lab2比较困难，有些同学由于畏难而止步与此，很可惜。通过lab1和lab2后，对计算机原理中的中断、段页表机制、特权级等的理解会更深入，等会有等同于打通了任督二脉，后面的实验将一片坦途。
+  - **打通任督二脉**--lab1和lab2与x86硬件相关性较大，比较困难，有些同学由于畏难而止步与此，很可惜！仅仅熟读内功心法是不够的，通过实践lab1和lab2后，对计算机原理中的中断、段页表机制、特权级等的理解会更深入和贴近实际，这等同于打通了任督二脉，后面的实验将一片坦途。
   
  
 # 实验内容
@@ -223,6 +223,7 @@ OS161教学操作系统、以及Linux-2.4内核。
 
 ucore OS中包含的xv6&jos代码版权属于Frans Kaashoek, Robert Morris,
 and Russ Cox，使用MIT License。ucore OS中包含的OS/161代码版权属于
-David A. Holland。其他代码版权属于陈渝、王乃铮、向勇，并采用GPL License.
-ucore OS相关的文档版权属于陈渝、向勇，并采用 Creative Commons 
-Attribution/Share-Alike (CC-BY-SA) License. 
+David A. Holland。包含的ostep练习的版权属于Remzi H. Arpaci-Dusseau and Andrea C. Arpaci-Dusseau。其他内部开发的ucore OS和相关练习的代码版权属于
+陈渝、王乃铮、向勇，并采用GPL License. ucore OS相关的文档版权属于
+陈渝、向勇，并采用 
+Creative Commons Attribution/Share-Alike (CC-BY-SA) License. 
