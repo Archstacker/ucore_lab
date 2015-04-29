@@ -310,7 +310,7 @@ print_stackframe(void) {
         cprintf("args:");
         int j;
         for(j=0; j<4; j++) {
-            cprintf("0x%08x ", ((uint32_t *)ebp+2)[j]); 
+            cprintf("0x%08x ", ((uint32_t *)ebp+2)[j]);
         }
         cprintf("\n");
         print_debuginfo(eip - 1);
