@@ -40,7 +40,10 @@ _clock_swap_out_victim(struct mm_struct *mm, struct Page ** ptr_page, int in_tic
      assert(in_tick==0);
      uintptr_t va = (le2page(current, pra_page_link))->pra_vaddr;
      pte_t *ptep = get_pte(mm->pgdir, va, 0);
-     while(*ptep & PTE_A) {
+     while(*ptep & PTE_A || *ptep & PTE_D) {
+         if(!(*ptep & PTE_A)) {
+             *ptep &= ~PTE_D;
+         }
          *ptep &= ~PTE_A;
          tlb_invalidate(mm->pgdir, va);
          current = list_next(current);
