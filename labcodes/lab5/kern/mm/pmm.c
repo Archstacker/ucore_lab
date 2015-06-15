@@ -524,9 +524,9 @@ copy_range(pde_t *to, pde_t *from, uintptr_t start, uintptr_t end, bool share) {
         //get page from ptep
         struct Page *page = pte2page(*ptep);
         // alloc a page for process B
-        struct Page *npage=alloc_page();
+        //struct Page *npage=alloc_page();
         assert(page!=NULL);
-        assert(npage!=NULL);
+        //assert(npage!=NULL);
         int ret=0;
         /* LAB5:EXERCISE2 YOUR CODE
          * replicate content of page to npage, build the map of phy addr of nage with the linear addr start
@@ -542,12 +542,12 @@ copy_range(pde_t *to, pde_t *from, uintptr_t start, uintptr_t end, bool share) {
          * (3) memory copy from src_kvaddr to dst_kvaddr, size is PGSIZE
          * (4) build the map of phy addr of  nage with the linear addr start
          */
-        void * kva_src = page2kva(page);
-        void * kva_dst = page2kva(npage);
+        if (!share && (*ptep & PTE_W)) {
+            perm &= ~PTE_W;
+            page_insert(from, page, start, perm);
+        }
 
-        memcpy(kva_dst, kva_src, PGSIZE);
-
-        ret = page_insert(to, npage, start, perm);
+        ret = page_insert(to, page, start, perm);
         assert(ret == 0);
         }
         start += PGSIZE;
