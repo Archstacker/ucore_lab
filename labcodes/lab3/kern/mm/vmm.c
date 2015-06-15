@@ -415,7 +415,7 @@ do_pgfault(struct mm_struct *mm, uint32_t error_code, uintptr_t addr) {
             page->pra_vaddr = addr;
         }
         else {
-            cprintf("no swap_init_ok but petp is %x, failed\n", &ptep);
+            cprintf("no swap_init_ok but petp is %x, failed\n", *ptep);
             goto failed;
         }
     }
