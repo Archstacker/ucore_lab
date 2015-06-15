@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <assert.h>
 #include <default_sched.h>
+#include <default_sched_stride.h>
 
 // the list of timer
 static list_entry_t timer_list;
@@ -30,7 +31,7 @@ sched_class_pick_next(void) {
     return sched_class->pick_next(rq);
 }
 
-static void
+void
 sched_class_proc_tick(struct proc_struct *proc) {
     if (proc != idleproc) {
         sched_class->proc_tick(rq, proc);
@@ -46,7 +47,7 @@ void
 sched_init(void) {
     list_init(&timer_list);
 
-    sched_class = &default_sched_class;
+    sched_class = &default_sched_stride_class;
 
     rq = &__rq;
     rq->max_time_slice = MAX_TIME_SLICE;
