@@ -462,6 +462,33 @@ do_fork(uint32_t clone_flags, uintptr_t stack, struct trapframe *tf) {
 	*    update step 5: insert proc_struct into hash_list && proc_list, set the relation links of process
     */
 	
+    if ((proc = alloc_proc()) == NULL) {
+        goto fork_out;
+    }
+
+    proc->parent = current;
+    assert(current->wait_state == 0);
+
+    if (setup_kstack(proc) != 0) {
+        goto bad_fork_cleanup_proc;
+    }
+    if (copy_mm(clone_flags, proc) != 0) {
+        goto bad_fork_cleanup_kstack;
+    }
+    copy_thread(proc, stack, tf);
+
+    bool intr_flag;
+    local_intr_save(intr_flag);
+    {
+        proc->pid = get_pid();
+        hash_proc(proc);
+        set_links(proc);
+    }
+    local_intr_restore(intr_flag);
+
+    wakeup_proc(proc);
+
+    ret = proc->pid;
 fork_out:
     return ret;
 

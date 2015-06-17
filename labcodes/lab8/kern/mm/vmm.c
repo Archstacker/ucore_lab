@@ -493,7 +493,50 @@ do_pgfault(struct mm_struct *mm, uint32_t error_code, uintptr_t addr) {
         }
    }
 #endif
-   ret = 0;
+    ptep = get_pte(mm->pgdir, addr, 1);
+    if(*ptep == 0) {
+        pgdir_alloc_page(mm->pgdir, addr, perm);
+    }
+    else {
+        struct Page *page = NULL, *newpage;
+        bool cow = ((vma->vm_flags & VM_WRITE ) == VM_WRITE), may_copy = 1;
+        assert(!(*ptep & PTE_P) || ((error_code & 2) && !(*ptep & PTE_W) && cow));
+        if (*ptep & PTE_P) {
+            page = pte2page(*ptep);
+        }
+        else {
+            if(swap_init_ok) {
+                swap_in(mm, addr, &page);
+                if(!(error_code & 2) && cow) {
+                    perm &= ~PTE_W;
+                    may_copy = 0;
+                }
+            }
+            else {
+                cprintf("no swap_init_ok but petp is %x, failed\n", *ptep);
+                goto failed;
+            }
+        }
+        if (cow && may_copy) {
+            if (page_ref(page) > 1) {
+                newpage = alloc_page();
+                if (newpage == NULL) {
+                    goto failed;
+                }
+                memcpy(page2kva(newpage), page2kva(page), PGSIZE);
+                page = newpage, newpage = NULL;
+            }
+        }
+        if (page != NULL) {
+            if (page_insert(mm->pgdir, page, addr, perm) != 0) {
+                free_page(page);
+                goto failed;
+            }
+        }
+        swap_map_swappable(mm, addr, page, 1);
+        page->pra_vaddr = addr;
+    }
+    ret = 0;
 failed:
     return ret;
 }
