@@ -603,9 +603,9 @@ load_icode(int fd, int argc, char **kargv) {
      *    (3.1) read raw data content in file and resolve elfhdr
      *    (3.2) read raw data content in file and resolve proghdr based on info in elfhdr
      *    (3.3) call mm_map to build vma related to TEXT/DATA
-     *    (3.4) callpgdir_alloc_page to allocate page for TEXT/DATA, read contents in file
+     *    (3.4) call pgdir_alloc_page to allocate page for TEXT/DATA, read contents in file
      *          and copy them into the new allocated pages
-     *    (3.5) callpgdir_alloc_page to allocate pages for BSS, memset zero in these pages
+     *    (3.5) call pgdir_alloc_page to allocate pages for BSS, memset zero in these pages
      * (4) call mm_map to setup user stack, and put parameters into user stack
      * (5) setup current process's mm, cr3, reset pgidr (using lcr3 MARCO)
      * (6) setup uargc and uargv in user stacks
